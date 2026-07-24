@@ -103,6 +103,7 @@
     </div>
     <div class="filters" id="langFilters"></div>
     <label class="fav-toggle"><input type="checkbox" id="favOnly"> お気に入りのみ</label>
+    <button id="translateToggle">🌐 日本語訳</button>
     <button id="refreshBtn">↻ 更新</button>
   </div>
 
@@ -112,7 +113,7 @@
 
   <footer>
     <p>
-      算出方法: トピックに "android" を含み "game" / "games" を含まないリポジトリのうち、選択した期間内に更新(push)があったものをスター数順に抽出しています。期間中のスター増加数そのものではなく、総スター数ベースの近似ランキングである点にご注意ください。データ取得元: GitHub REST API (Search)。最終取得: <span id="fetchedAt">-</span>
+      算出方法: トピックに "android" を含み "game" / "games" を含まないリポジトリのうち、選択した期間内に更新(push)があったものをスター数順に抽出しています。期間中のスター増加数そのものではなく、総スター数ベースの近似ランキングである点にご注意ください。データ取得元: GitHub REST API (Search)。説明文の日本語訳はMyMemory Translation APIによる自動翻訳のため、不自然な訳や失敗が含まれる場合があります(その際は原文が表示されます)。最終取得: <span id="fetchedAt">-</span>
     </p>
   </footer>
 </div>
@@ -130,6 +131,8 @@ let state = {
   favorites: [],
   favOnly: false,
   langFilter: null,
+  showTranslated: true,
+  translations: {},   // { repoId: '日本語訳テキスト' | 'ERROR' }
   meta: {}
 };
 
@@ -149,6 +152,60 @@ function timeAgo(dateStr){
   if (days < 30) return Math.floor(days/7) + '週間前';
   if (days < 365) return Math.floor(days/30) + 'か月前';
   return Math.floor(days/365) + '年前';
+}
+
+async function loadTranslations(){
+  try {
+    const r = await window.storage.get('translations', true);
+    state.translations = r ? JSON.parse(r.value) : {};
+  } catch(e){ state.translations = {}; }
+}
+
+let saveTranslationsTimer = null;
+function saveTranslationsDebounced(){
+  clearTimeout(saveTranslationsTimer);
+  saveTranslationsTimer = setTimeout(async () => {
+    try { await window.storage.set('translations', JSON.stringify(state.translations), true); }
+    catch(e){ console.error('translation cache save failed', e); }
+  }, 800);
+}
+
+async function translateText(text){
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('translate failed');
+  const json = await res.json();
+  const translated = json?.responseData?.translatedText;
+  if (!translated) throw new Error('empty translation');
+  return translated;
+}
+
+// 表示中のリポジトリの説明文を順番に翻訳し、キャッシュ後にDOMを直接更新する
+async function ensureTranslations(display){
+  const targets = display.filter(r => r.description && !state.translations[r.id]);
+  for (const repo of targets){
+    try {
+      const translated = await translateText(repo.description);
+      state.translations[repo.id] = translated;
+    } catch(e){
+      state.translations[repo.id] = 'ERROR';
+    }
+    if (state.showTranslated){
+      const el = document.querySelector(`[data-desc-id="${repo.id}"]`);
+      if (el) el.textContent = descTextFor(repo);
+    }
+    saveTranslationsDebounced();
+    await new Promise(r => setTimeout(r, 250)); // 無料APIへの配慮で少し間隔を空ける
+  }
+}
+
+function descTextFor(repo){
+  if (!repo.description) return '(説明なし)';
+  if (!state.showTranslated) return repo.description;
+  const t = state.translations[repo.id];
+  if (t === 'ERROR') return repo.description + ' (翻訳失敗・原文表示)';
+  if (t) return t;
+  return '翻訳中... / ' + repo.description;
 }
 
 async function loadFavorites(){
@@ -280,7 +337,7 @@ function render(){
           <span class="owner">/ ${repo.owner.login}</span>
           ${repo._isNew ? '<span class="badge-new">NEW</span>' : ''}
         </div>
-        <p class="row-desc">${repo.description ? escapeHtml(repo.description) : '(説明なし)'}</p>
+        <p class="row-desc" data-desc-id="${repo.id}">${escapeHtml(descTextFor(repo))}</p>
         <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
         <div class="tags">
           ${repo.language ? `<span class="tag">${repo.language}</span>` : ''}
@@ -300,6 +357,8 @@ function render(){
   listEl.querySelectorAll('[data-fav]').forEach(btn => {
     btn.onclick = () => toggleFavorite(btn.getAttribute('data-fav'));
   });
+
+  if (state.showTranslated) ensureTranslations(display);
 }
 
 function escapeHtml(s){
@@ -345,8 +404,18 @@ document.getElementById('favOnly').onchange = (e) => {
 
 document.getElementById('refreshBtn').onclick = () => loadPeriod(state.period, true);
 
+const translateToggleBtn = document.getElementById('translateToggle');
+translateToggleBtn.classList.add('chip', 'active');
+translateToggleBtn.onclick = () => {
+  state.showTranslated = !state.showTranslated;
+  translateToggleBtn.classList.toggle('active', state.showTranslated);
+  translateToggleBtn.textContent = state.showTranslated ? '🌐 日本語訳' : '🌐 原文(英語)';
+  render();
+};
+
 (async function init(){
   await loadFavorites();
+  await loadTranslations();
   await loadPeriod(state.period, false);
 })();
 </script>
