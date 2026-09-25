@@ -3,421 +3,739 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Android トレンドボード | GitHub非ゲームアプリ ランキング</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>DevTrend Board | Android & Chrome Extension & Docker トレンド</title>
+<script type="text/javascript" nonce="aafb6f5c8ee64714a3d346a71f0" src="//local.adguard.org?ts=1790265420774&amp;type=content-script&amp;dmn=chat.sakana.ai&amp;url=https%3A%2F%2Fchat.sakana.ai%2Fapi%2Fconversation%2F01a0d778-53d8-739e-a9bf-f4caf2956877%2Foutput%2F57bd449457edac91a09010235f1bb0c608dc5679974d55768eb02dedf69df69a&amp;app=com.android.chrome&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=0"></script><link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#12141c;
-    --panel:#181b25;
-    --panel-2:#1e2230;
-    --line:#2a2e3d;
-    --text:#e8e9ee;
-    --text-dim:#8b8fa3;
-    --text-faint:#5b5f70;
-    --green:#3ecf7e;
-    --green-dim:#1f4d38;
-    --gold:#e3b341;
-    --blue:#6ea8fe;
-    --red-dim:#4a2a2a;
-    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
-  .wrap{max-width:880px;margin:0 auto;padding:28px 18px 60px;}
-  header{margin-bottom:22px;}
-  .eyebrow{font-family:var(--mono);font-size:12.5px;color:var(--green);letter-spacing:0.02em;margin-bottom:10px;}
-  h1{font-family:var(--mono);font-size:26px;font-weight:700;margin:0 0 10px;letter-spacing:-0.01em;}
-  .desc{color:var(--text-dim);font-size:13.5px;line-height:1.75;margin:0;max-width:64ch;}
+:root{
+  --bg:#12141c;
+  --panel:#181b25;
+  --panel-2:#1e2230;
+  --line:#2a2e3d;
+  --text:#e8e9ee;
+  --text-dim:#8b8fa3;
+  --text-faint:#5b5f70;
+  --green:#3ecf7e;
+  --green-dim:#1f4d38;
+  --gold:#e3b341;
+  --blue:#6ea8fe;
+  --blue-dim:#1a3a5c;
+  --red:#e8837e;
+  --red-dim:#4a2a2a;
+  --chrome-blue:#4285f4;
+  --chrome-red:#ea4335;
+  --chrome-yellow:#fbbc05;
+  --chrome-green:#34a853;
+  --docker-blue:#2496ed;
+  --docker-blue-dim:#1a3a5c;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.7; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 28px 18px 60px; }
 
-  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:22px 0 6px;padding-bottom:16px;border-bottom:1px solid var(--line);}
-  .tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px;}
-  .tab{font-family:var(--mono);font-size:12.5px;background:transparent;border:none;color:var(--text-dim);padding:7px 13px;border-radius:6px;cursor:pointer;transition:all .15s;}
-  .tab.active{background:var(--green-dim);color:var(--green);}
-  .tab:hover:not(.active){color:var(--text);}
-  .filters{display:flex;gap:6px;flex-wrap:wrap;}
-  .chip{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);border:1px solid var(--line);padding:5px 10px;border-radius:20px;cursor:pointer;background:var(--panel);}
-  .chip.active{color:var(--blue);border-color:var(--blue);}
-  .fav-toggle{font-size:12.5px;color:var(--text-dim);display:flex;align-items:center;gap:6px;cursor:pointer;margin-left:auto;}
-  #refreshBtn{font-family:var(--mono);font-size:12px;color:var(--text-dim);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 11px;cursor:pointer;}
-  #refreshBtn:hover{color:var(--text);}
+/* Header */
+header { margin-bottom: 22px; }
+.app-switcher { display: flex; gap: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px; margin-bottom: 18px; width: fit-content; flex-wrap: wrap; }
+.app-switcher button { font-family: var(--mono); font-size: 13px; background: transparent; border: none; color: var(--text-dim); padding: 9px 18px; border-radius: 7px; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 8px; }
+.app-switcher button.active { background: var(--blue-dim); color: var(--blue); }
+.app-switcher button:hover:not(.active) { color: var(--text); }
+.app-icon { width: 18px; height: 18px; border-radius: 4px; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; }
+.app-icon.android { background: var(--green); color: var(--bg); }
+.app-icon.chrome { background: linear-gradient(135deg, var(--chrome-blue), var(--chrome-green)); color: #fff; }
+.app-icon.docker { background: var(--docker-blue); color: #fff; }
 
-  .meta{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);margin:14px 2px;min-height:16px;}
+h1 { font-family: var(--mono); font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.01em; }
+.desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.75; margin: 0; max-width: 68ch; }
 
-  .list{list-style:none;margin:0;padding:0;position:relative;}
-  .list::before{content:"";position:absolute;left:29px;top:8px;bottom:8px;width:1px;background:linear-gradient(var(--line),var(--line) 90%, transparent);}
-  .row{display:grid;grid-template-columns:58px 40px 1fr auto;gap:14px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line);position:relative;}
-  .row:last-child{border-bottom:none;}
-  .rank-col{display:flex;align-items:flex-start;justify-content:flex-start;padding-top:2px;position:relative;}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--green);margin-right:8px;margin-top:6px;flex:none;box-shadow:0 0 0 3px var(--bg);z-index:1;}
-  .rank-col.top .dot{background:var(--gold);}
-  .rank{font-family:var(--mono);font-size:13px;color:var(--text-dim);}
-  .rank-col.top .rank{color:var(--gold);font-weight:600;}
-  .avatar{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);}
-  .info{min-width:0;}
-  .name-line{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
-  .name{font-weight:600;font-size:14.5px;color:var(--text);text-decoration:none;}
-  .name:hover{color:var(--blue);}
-  .owner{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
-  .badge-new{font-family:var(--mono);font-size:9.5px;color:var(--green);border:1px solid var(--green-dim);background:var(--green-dim);padding:1px 6px;border-radius:4px;}
-  .row-desc{color:var(--text-dim);font-size:12.5px;line-height:1.6;margin:4px 0 8px;max-width:60ch;}
-  .score-bar{height:3px;background:var(--panel-2);border-radius:2px;overflow:hidden;max-width:220px;margin-bottom:8px;}
-  .score-bar-fill{height:100%;background:var(--green);}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;}
-  .tag{font-family:var(--mono);font-size:10px;color:var(--text-faint);border:1px solid var(--line);padding:2px 7px;border-radius:10px;}
-  .stats{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right;white-space:nowrap;}
-  .stars{font-family:var(--mono);font-size:13px;color:var(--text);}
-  .sub-stat{font-family:var(--mono);font-size:11px;color:var(--text-faint);}
-  .fav-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:16px;line-height:1;padding:0;}
-  .fav-btn.active{color:var(--gold);}
-  .actions{display:flex;gap:10px;align-items:center;}
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 22px 0 6px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.tabs { display: flex; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+.tab { font-family: var(--mono); font-size: 12px; background: transparent; border: none; color: var(--text-dim); padding: 7px 13px; border-radius: 6px; cursor: pointer; transition: all .15s; }
+.tab.active { background: var(--green-dim); color: var(--green); }
+.tab:hover:not(.active) { color: var(--text); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); border: 1px solid var(--line); padding: 5px 11px; border-radius: 20px; cursor: pointer; background: var(--panel); transition: all .15s; }
+.chip:hover { border-color: var(--blue); color: var(--blue); }
+.chip.active { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+.sort-select { font-family: var(--mono); font-size: 12px; background: var(--panel); color: var(--text-dim); border: 1px solid var(--line); border-radius: 6px; padding: 7px 11px; cursor: pointer; margin-left: auto; }
+.sort-select:focus { outline: none; border-color: var(--blue); }
 
-  .status{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);text-align:center;padding:30px 0;}
-  .status.error{color:#e8837e;}
-  .status a{color:var(--blue);cursor:pointer;text-decoration:underline;}
+/* Meta */
+.meta { font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); margin: 14px 2px 10px; min-height: 16px; display: flex; gap: 16px; flex-wrap: wrap; }
 
-  footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);}
-  footer p{font-size:11.5px;color:var(--text-faint);line-height:1.7;margin:0;}
+/* List */
+.list { list-style: none; margin: 0; padding: 0; position: relative; }
+.list::before { content: ""; position: absolute; left: 29px; top: 8px; bottom: 8px; width: 1px; background: linear-gradient(var(--line), var(--line) 90%, transparent); }
+.row { display: grid; grid-template-columns: 58px 40px 1fr auto; gap: 14px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); position: relative; cursor: pointer; transition: background .12s; }
+.row:hover { background: rgba(110, 168, 254, 0.04); }
+.row:last-child { border-bottom: none; }
+.rank-col { display: flex; align-items: flex-start; justify-content: flex-start; padding-top: 2px; position: relative; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); margin-right: 8px; margin-top: 6px; flex: none; box-shadow: 0 0 0 3px var(--bg); z-index: 1; }
+.rank-col.top .dot { background: var(--gold); }
+.rank { font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+.rank-col.top .rank { color: var(--gold); font-weight: 600; }
+.avatar { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); display: grid; place-items: center; font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text-dim); flex-shrink: 0; overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.info { min-width: 0; }
+.name-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.name { font-weight: 600; font-size: 14.5px; color: var(--text); text-decoration: none; }
+.name:hover { color: var(--blue); }
+.owner { font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); }
+.badge-new { font-family: var(--mono); font-size: 9.5px; color: var(--green); border: 1px solid var(--green-dim); background: var(--green-dim); padding: 1px 6px; border-radius: 4px; }
+.badge-hot { font-family: var(--mono); font-size: 9.5px; color: var(--red); border: 1px solid var(--red-dim); background: var(--red-dim); padding: 1px 6px; border-radius: 4px; }
+.badge-official { font-family: var(--mono); font-size: 9.5px; color: var(--blue); border: 1px solid var(--blue-dim); background: var(--blue-dim); padding: 1px 6px; border-radius: 4px; }
+.row-desc { color: var(--text-dim); font-size: 12.5px; line-height: 1.6; margin: 4px 0 8px; max-width: 60ch; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.score-bar { height: 3px; background: var(--panel-2); border-radius: 2px; overflow: hidden; max-width: 220px; margin-bottom: 8px; }
+.score-bar-fill { height: 100%; background: var(--green); border-radius: 2px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-family: var(--mono); font-size: 10px; color: var(--text-faint); border: 1px solid var(--line); padding: 2px 7px; border-radius: 10px; }
+.stats { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; text-align: right; white-space: nowrap; }
+.stars { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.sub-stat { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+.sub-stat.up { color: var(--green); }
+.sub-stat.down { color: var(--red); }
 
-  @media (max-width:520px){
-    .row{grid-template-columns:44px 34px 1fr;}
-    .stats{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;padding-left:52px;margin-top:2px;}
-    .fav-toggle{margin-left:0;order:99;width:100%;}
-  }
+/* Section title */
+.section-title { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text-dim); margin: 28px 0 10px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.section-title::before { content: ""; width: 4px; height: 16px; background: var(--blue); border-radius: 2px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.2s ease; }
+.modal-overlay.open { display: flex; opacity: 1; }
+.modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; transform: translateY(12px); transition: transform 0.25s ease; }
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header { padding: 24px 24px 0; display: flex; gap: 14px; align-items: flex-start; }
+.modal-icon { width: 52px; height: 52px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); display: grid; place-items: center; font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+.modal-title-wrap { flex: 1; min-width: 0; }
+.modal-title { font-family: var(--mono); font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+.modal-close { background: none; border: none; color: var(--text-dim); font-size: 22px; cursor: pointer; line-height: 1; padding: 4px; margin: -4px -4px 0 0; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px 24px; }
+.modal-desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.75; margin-bottom: 20px; }
+.modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.stat-box { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; text-align: center; }
+.stat-box .val { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--text); }
+.stat-box .lab { font-family: var(--mono); font-size: 10px; color: var(--text-faint); text-transform: uppercase; margin-top: 4px; letter-spacing: 0.03em; }
+.modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.modal-tag { font-family: var(--mono); font-size: 11px; color: var(--blue); border: 1px solid var(--line); background: var(--blue-dim); padding: 4px 10px; border-radius: 6px; }
+.modal-link { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--blue); text-decoration: none; border: 1px solid var(--line); padding: 8px 14px; border-radius: 8px; background: var(--panel-2); transition: all .15s; }
+.modal-link:hover { border-color: var(--blue); background: var(--blue-dim); }
+.modal-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.modal-section h4 { font-family: var(--mono); font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+.trend-mini { display: flex; align-items: flex-end; gap: 6px; height: 80px; padding: 8px 0; }
+.trend-mini-bar { flex: 1; background: linear-gradient(to top, var(--blue), var(--green)); border-radius: 3px 3px 0 0; opacity: 0.8; min-height: 4px; }
+
+/* Footer */
+footer { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+footer p { font-size: 11.5px; color: var(--text-faint); line-height: 1.7; margin: 0; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .app-switcher button { padding: 8px 12px; font-size: 12px; }
+  .row { grid-template-columns: 44px 34px 1fr; }
+  .stats { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; padding-left: 52px; margin-top: 2px; }
+  .sort-select { margin-left: 0; width: 100%; margin-top: 6px; }
+  .modal-stats { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">$ gh search repos --topic=android --exclude=game</div>
-    <h1>Android トレンドボード</h1>
-    <p class="desc">GitHub上に公開されているAndroidアプリ関連リポジトリ(ゲームを除く)を、期間別・スター数ベースの近似トレンドスコアでランキング表示するツールです。公式のGitHub Trendingページとは算出方法が異なる独自集計です。</p>
+    <div class="app-switcher">
+      <button class="active" data-view="android" onclick="switchView('android')">
+        <span class="app-icon android">A</span> Android
+      </button>
+      <button data-view="chrome" onclick="switchView('chrome')">
+        <span class="app-icon chrome">C</span> Chrome
+      </button>
+      <button data-view="docker" onclick="switchView('docker')">
+        <span class="app-icon docker">D</span> Docker
+      </button>
+    </div>
+    <h1 id="pageTitle">Android トレンドボード</h1>
+    <p class="desc" id="pageDesc">GitHub上に公開されているAndroidアプリ関連リポジトリ(ゲームを除く)を、期間別・スター数ベースの近似トレンドスコアでランキング表示します。</p>
   </header>
 
-  <div class="controls">
-    <div class="tabs">
-      <button class="tab active" data-period="today">今日</button>
-      <button class="tab" data-period="week">1週間</button>
-      <button class="tab" data-period="month">1か月</button>
+  <div class="controls" id="controls">
+    <div class="tabs" id="periodTabs">
+      <button class="tab active" data-period="week" onclick="setPeriod('week')">1週間</button>
+      <button class="tab" data-period="month" onclick="setPeriod('month')">1か月</button>
+      <button class="tab" data-period="all" onclick="setPeriod('all')">全期間</button>
     </div>
-    <div class="filters" id="langFilters"></div>
-    <label class="fav-toggle"><input type="checkbox" id="favOnly"> お気に入りのみ</label>
-    <button id="translateToggle">🌐 日本語訳</button>
-    <button id="refreshBtn">↻ 更新</button>
+    <div class="chips" id="categoryChips" style="display:none;">
+      <button class="chip active" data-cat="all" onclick="setCategory('all')">すべて</button>
+      <button class="chip" data-cat="productivity" onclick="setCategory('productivity')">生産性</button>
+      <button class="chip" data-cat="devtools" onclick="setCategory('devtools')">開発者ツール</button>
+      <button class="chip" data-cat="design" onclick="setCategory('design')">デザイン</button>
+      <button class="chip" data-cat="security" onclick="setCategory('security')">セキュリティ</button>
+      <button class="chip" data-cat="social" onclick="setCategory('social')">SNS・動画</button>
+    </div>
+    <div class="chips" id="dockerChips" style="display:none;">
+      <button class="chip active" data-cat="all" onclick="setCategory('all')">すべて</button>
+      <button class="chip" data-cat="selfhosted" onclick="setCategory('selfhosted')">セルフホスト</button>
+      <button class="chip" data-cat="media" onclick="setCategory('media')">メディア</button>
+      <button class="chip" data-cat="database" onclick="setCategory('database')">データベース</button>
+      <button class="chip" data-cat="devops" onclick="setCategory('devops')">DevOps</button>
+      <button class="chip" data-cat="monitoring" onclick="setCategory('monitoring')">監視・ログ</button>
+    </div>
+    <select class="sort-select" id="sortSelect" onchange="setSort(this.value)">
+      <option value="score">トレンドスコア順</option>
+      <option value="stars">総スター数順</option>
+      <option value="weekly">週間スター増加数順</option>
+      <option value="updated">更新日順</option>
+    </select>
   </div>
 
   <div class="meta" id="meta"></div>
-  <ol class="list" id="list"></ol>
-  <div class="status" id="status">読み込み中...</div>
+
+  <ul class="list" id="list"></ul>
+
+  <div class="section-title" id="newcomerTitle" style="display:none;">新規登録（過去30日以内）</div>
+  <ul class="list" id="newcomerList" style="display:none;"></ul>
 
   <footer>
-    <p>
-      算出方法: トピックに "android" を含み "game" / "games" を含まないリポジトリのうち、選択した期間内に更新(push)があったものをスター数順に抽出しています。期間中のスター増加数そのものではなく、総スター数ベースの近似ランキングである点にご注意ください。データ取得元: GitHub REST API (Search)。説明文の日本語訳はMyMemory Translation APIによる自動翻訳のため、不自然な訳や失敗が含まれる場合があります(その際は原文が表示されます)。最終取得: <span id="fetchedAt">-</span>
-    </p>
+    <p>DevTrend Board はデモアプリです。表示データはモックデータを使用しています。</p>
+    <p>Android: GitHub REST API形式 / Chrome: Chrome Web Store形式 / Docker: Docker Hub形式</p>
   </footer>
 </div>
 
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon" id="modalIcon">A</div>
+      <div class="modal-title-wrap">
+        <div class="modal-title" id="modalTitle">Title</div>
+        <div class="modal-sub" id="modalSub">owner / category</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-desc" id="modalDesc">Description</div>
+      <div class="modal-stats" id="modalStats"></div>
+      <div class="modal-tags" id="modalTags"></div>
+      <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener">ページを開く &nearr;</a>
+      <div class="modal-section">
+        <h4>週間推移</h4>
+        <div class="trend-mini" id="modalTrend"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const PERIODS = {
-  today: { label: '今日', days: 1 },
-  week:  { label: '1週間', days: 7 },
-  month: { label: '1か月', days: 30 }
-};
 
+// ===================== DATA =====================
+const androidRepos = [
+  { id:1, name:"tachiyomi", owner:"tachiyomiorg", desc:"無料でオープンソースのマンガリーダー。複数のソースからマンガを読むことができます。", stars:38200, weeklyStars:420, updated:"2026-09-22", lang:"Kotlin", tags:["manga","reader","kotlin"], url:"https://github.com/tachiyomiorg/tachiyomi" },
+  { id:2, name:"NewPipe", owner:"TeamNewPipe", desc:"YouTubeなどの動画サイトから広告なしで動画を視聴・ダウンロードできる軽量ストリーマー。", stars:31200, weeklyStars:380, updated:"2026-09-23", lang:"Java", tags:["youtube","video","download"], url:"https://github.com/TeamNewPipe/NewPipe" },
+  { id:3, name:"Firefox Preview", owner:"mozilla-mobile", desc:"Mozillaが開発する次世代Androidブラウザ。GeckoViewエンジンを搭載。", stars:28400, weeklyStars:210, updated:"2026-09-20", lang:"Kotlin", tags:["browser","gecko","kotlin"], url:"https://github.com/mozilla-mobile/fenix" },
+  { id:4, name:"duckduckgo/Android", owner:"duckduckgo", desc:"DuckDuckGoのプライバシー重視ブラウザ。トラッカーブロックと暗号化を標準装備。", stars:35600, weeklyStars:290, updated:"2026-09-24", lang:"Kotlin", tags:["privacy","browser","kotlin"], url:"https://github.com/duckduckgo/Android" },
+  { id:5, name:"Signal Android", owner:"signalapp", desc:"プライバシー重視のメッセージングアプリ。エンドツーエンド暗号化をデフォルトで提供。", stars:26400, weeklyStars:180, updated:"2026-09-21", lang:"Java", tags:["messaging","privacy","encryption"], url:"https://github.com/signalapp/Signal-Android" },
+  { id:6, name:"K-9 Mail", owner:"thunderbird", desc:"オープンソースのメールクライアント。Thunderbirdブランドとして開発が継続されています。", stars:10200, weeklyStars:95, updated:"2026-09-18", lang:"Kotlin", tags:["email","imap","kotlin"], url:"https://github.com/thunderbird/thunderbird-android" },
+  { id:7, name:"Lawnchair", owner:"LawnchairLauncher", desc:"Pixel Launcherをベースにしたカスタマイズ可能なAndroidランチャー。オープンソース。", stars:8900, weeklyStars:120, updated:"2026-09-19", lang:"Kotlin", tags:["launcher","pixel","kotlin"], url:"https://github.com/LawnchairLauncher/lawnchair" },
+  { id:8, name:"Material Files", owner:"zhanghai", desc:"Material Design 3に準拠した軽量ファイルマネージャー。Root対応とSFTPクライアント搭載。", stars:4500, weeklyStars:65, updated:"2026-09-15", lang:"Kotlin", tags:["files","material","kotlin"], url:"https://github.com/zhanghai/MaterialFiles" },
+  { id:9, name:"Simplenote Android", owner:"Automattic", desc:"シンプルなメモアプリ。Markdown対応で全デバイス間で同期。Automatticが開発。", stars:3200, weeklyStars:28, updated:"2026-09-10", lang:"Kotlin", tags:["notes","markdown","sync"], url:"https://github.com/Automattic/simplenote-android" },
+  { id:10, name:"Kodi", owner:"xbmc", desc:"メディアセンターアプリ。動画・音楽・ライブTVを1つのアプリで管理。", stars:18200, weeklyStars:140, updated:"2026-09-22", lang:"Java", tags:["media","video","player"], url:"https://github.com/xbmc/xbmc" },
+  { id:11, name:"AntennaPod", owner:"AntennaPod", desc:"オープンソースのポッドキャストマネージャー。RSSフィードの購読と再生を管理。", stars:6400, weeklyStars:85, updated:"2026-09-17", lang:"Java", tags:["podcast","rss","audio"], url:"https://github.com/AntennaPod/AntennaPod" },
+  { id:12, name:"Joplin Android", owner:"laurent22", desc:"Markdown対応のノートアプリ。Evernote代替として人気。Webクリッパーも提供。", stars:45000, weeklyStars:310, updated:"2026-09-24", lang:"TypeScript", tags:["notes","markdown","sync"], url:"https://github.com/laurent22/joplin" },
+  { id:13, name:"OsmAnd", owner:"osmandapp", desc:"オフライン対応の地図・ナビゲーションアプリ。OpenStreetMapデータを使用。", stars:5200, weeklyStars:55, updated:"2026-09-14", lang:"Java", tags:["maps","navigation","offline"], url:"https://github.com/osmandapp/OsmAnd" },
+  { id:14, name:"DAVx5", owner:"bitfireAT", desc:"CalDAV/CardDAVクライアント。NextcloudやGoogle Calendarとの同期が可能。", stars:2800, weeklyStars:32, updated:"2026-09-12", lang:"Kotlin", tags:["calendar","sync","caldav"], url:"https://github.com/bitfireAT/davx5" },
+  { id:15, name:"FairEmail", owner:"M66B", desc:"軽量でプライバシー重視のメールアプリ。PGP暗号化と最小限の権限で動作。", stars:3600, weeklyStars:48, updated:"2026-09-16", lang:"Java", tags:["email","privacy","pgp"], url:"https://github.com/M66B/FairEmail" },
+  { id:16, name:"Aegis", owner:"beemdevelopment", desc:"2FAコード管理アプリ。暗号化バックアップと生体認証対応。", stars:8900, weeklyStars:110, updated:"2026-09-20", lang:"Java", tags:["2fa","security","otp"], url:"https://github.com/beemdevelopment/Aegis" },
+  { id:17, name:"Sesame", owner:"thevoiceofzeke", desc:"ユニバーサル検索をAndroidランチャーに統合。アプリ・連絡先・設定を瞬時に検索。", stars:1200, weeklyStars:18, updated:"2026-09-08", lang:"Java", tags:["search","launcher","shortcut"], url:"https://github.com/thevoiceofzeke/sesame" },
+  { id:18, name:"Feeder", owner:"spacecowboy", desc:"オープンソースのRSSリーダー。Material Designでシンプルな読書体験を提供。", stars:3400, weeklyStars:42, updated:"2026-09-13", lang:"Kotlin", tags:["rss","reader","news"], url:"https://github.com/spacecowboy/Feeder" },
+  { id:19, name:"Tasks.org", owner:"tasks", desc:"カレンダー連携のTodo管理アプリ。DAVx5と連携してNextcloudと同期可能。", stars:4100, weeklyStars:58, updated:"2026-09-15", lang:"Kotlin", tags:["todo","tasks","calendar"], url:"https://github.com/tasks/tasks" },
+  { id:20, name:"Read You", owner:"Ashinch", desc:"Material 3デザインのRSSリーダー。新興だが急速に人気を集めている。", stars:5200, weeklyStars:145, updated:"2026-09-23", lang:"Kotlin", tags:["rss","reader","material3"], url:"https://github.com/Ashinch/ReadYou" },
+  { id:21, name:"PocketHub", owner:"pkdf", desc:"GitHubクライアントアプリ。リポジトリ・Issue・PRの閲覧と管理が可能。", stars:980, weeklyStars:22, updated:"2026-09-11", lang:"Kotlin", tags:["github","client","kotlin"], url:"https://github.com/pockethub/PocketHub" },
+  { id:22, name:"SkyTube", owner:"ram-on", desc:"YouTubeクライアント。広告なし・サブスクリプション不要で動画を視聴。", stars:1900, weeklyStars:28, updated:"2026-09-09", lang:"Java", tags:["youtube","video","player"], url:"https://github.com/ram-on/SkyTube" },
+  { id:23, name:"Muzei", owner:"romannurik", desc:"ライブ壁紙アプリ。有名アート作品や写真をホーム画面に自動切り替え表示。", stars:4800, weeklyStars:35, updated:"2026-09-07", lang:"Kotlin", tags:["wallpaper","art","live"], url:"https://github.com/romannurik/muzei" },
+  { id:24, name:"Breezy Weather", owner:"breezyweather", desc:"オープンソースの天気アプリ。複数の気象データソースに対応。", stars:2200, weeklyStars:68, updated:"2026-09-21", lang:"Kotlin", tags:["weather","forecast","material3"], url:"https://github.com/breezy-weather/breezy-weather" },
+  { id:25, name:"Organic Maps", owner:"organicmaps", desc:"オフライン対応の地図アプリ。ハイカー・サイクリスト向けの詳細なトレイル情報。", stars:9200, weeklyStars:95, updated:"2026-09-22", lang:"C++", tags:["maps","offline","hiking"], url:"https://github.com/organicmaps/organicmaps" },
+  { id:26, name:"Molly", owner:"mollyim", desc:"Signalのフォーク。セキュリティ強化と追加のプラバシー機能を提供。", stars:1800, weeklyStars:38, updated:"2026-09-18", lang:"Java", tags:["messaging","privacy","signal"], url:"https://github.com/mollyim/mollyim-android" },
+  { id:27, name:"Droid-ify", owner:"Iamlooker", desc:"F-Droidクライアントのモダン替代品。Material 3 UIでアプリを閲覧・インストール。", stars:2400, weeklyStars:52, updated:"2026-09-19", lang:"Kotlin", tags:["fdroid","store","material3"], url:"https://github.com/Iamlooker/Droid-ify" },
+  { id:28, name:"Loop Habit Tracker", owner:"iSoron", desc:"習慣トラッカー。長期的な習慣形成をグラフとスコアで可視化。", stars:7800, weeklyStars:62, updated:"2026-09-16", lang:"Kotlin", tags:["habit","tracker","health"], url:"https://github.com/iSoron/uhabits" },
+  { id:29, name:"Seal", owner:"JunkFood02", desc:"動画・音声ダウンローダー。yt-dlpをバックエンドに使用し複数サイトに対応。", stars:8900, weeklyStars:178, updated:"2026-09-24", lang:"Kotlin", tags:["download","video","yt-dlp"], url:"https://github.com/JunkFood02/Seal" },
+  { id:30, name:"LibreTorrent", owner:"proninyaroslav", desc:"オープンソースのBitTorrentクライアント。Material Designで軽快に動作。", stars:2100, weeklyStars:18, updated:"2026-09-10", lang:"Java", tags:["torrent","download","p2p"], url:"https://github.com/proninyaroslav/libretorrent" },
+];
+
+const chromeExts = [
+  { id:101, name:"Toby for Chrome", owner:"Toby", desc:"タブをビジュアルなコレクションで管理。セッション保存とワークスペース切り替えで生産性が劇的に向上します。", stars:1200000, weeklyStars:8200, updated:"2026-09-24", category:"productivity", tags:["tabs","session","workspace"], url:"https://chrome.google.com/webstore/detail/toby-for-chrome" },
+  { id:102, name:"Grammarly", owner:"Grammarly Inc.", desc:"英語のスペル・文法チェックをリアルタイムで。メールやSNS投稿の品質を自動的に向上させます。", stars:30000000, weeklyStars:3100, updated:"2026-09-23", category:"productivity", tags:["writing","grammar","spellcheck"], url:"https://chrome.google.com/webstore/detail/grammarly" },
+  { id:103, name:"Dark Reader", owner:"Alexander Shutau", desc:"任意のWebサイトをダークモードに自動変換。明度・コントラスト・セピア調整が可能です。", stars:8500000, weeklyStars:5400, updated:"2026-09-22", category:"design", tags:["dark-mode","theme","accessibility"], url:"https://chrome.google.com/webstore/detail/dark-reader" },
+  { id:104, name:"Momentum", owner:"Momentum", desc:"新規タブを美しい風景写真とデイリーフォーカスに置き換え。毎日の目標設定とTodo管理も統合。", stars:3400000, weeklyStars:2800, updated:"2026-09-21", category:"productivity", tags:["new-tab","todo","focus"], url:"https://chrome.google.com/webstore/detail/momentum" },
+  { id:105, name:"OneTab", owner:"OneTab Ltd.", desc:"開いているすべてのタブを1クリックでリスト化。メモリ使用量を95%削減し、タブを後で復元できます。", stars:2900000, weeklyStars:1500, updated:"2026-09-20", category:"productivity", tags:["tabs","memory","session"], url:"https://chrome.google.com/webstore/detail/onetab" },
+  { id:106, name:"StayFocusd", owner:"Transfusion", desc:"時間の無駄サイト（SNS、ニュースなど）の閲覧時間を制限。ポモドーロタイマーと連携も可能です。", stars:680000, weeklyStars:4100, updated:"2026-09-19", category:"productivity", tags:["focus","blocker","timer"], url:"https://chrome.google.com/webstore/detail/stayfocusd" },
+  { id:107, name:"Extensity", owner:"sergiotorres", desc:"拡張機能自体をワンクリックでON/OFF切り替え。プロファイル別に拡張の組み合わせを保存できます。", stars:320000, weeklyStars:2200, updated:"2026-09-18", category:"devtools", tags:["extension","manager","toggle"], url:"https://chrome.google.com/webstore/detail/extensity" },
+  { id:108, name:"LastPass", owner:"LogMeIn", desc:"パスワードを安全に保存・自動入力。パスワードジェネレーターとセキュリティ監査機能を搭載。", stars:11000000, weeklyStars:1200, updated:"2026-09-17", category:"security", tags:["password","vault","autofill"], url:"https://chrome.google.com/webstore/detail/lastpass" },
+  { id:109, name:"WhatFont", owner:"Chengyin Liu", desc:"Webページ上のフォントをホバーするだけで特定。フォント名・サイズ・間・色を即座に確認できます。", stars:980000, weeklyStars:1800, updated:"2026-09-16", category:"design", tags:["font","inspector","design"], url:"https://chrome.google.com/webstore/detail/whatfont" },
+  { id:110, name:"uBlock Origin", owner:"Raymond Hill", desc:"軽量かつ強力な広告ブロッカー。CPU・メモリ使用量が極めて少なく、フィルタリストが豊富です。", stars:42000000, weeklyStars:800, updated:"2026-09-15", category:"security", tags:["adblock","privacy","filter"], url:"https://chrome.google.com/webstore/detail/ublock-origin" },
+  { id:111, name:"Bitwarden", owner:"Bitwarden Inc.", desc:"オープンソースのパスワードマネージャー。セルフホスト対応でプライバシーを徹底保護します。", stars:5200000, weeklyStars:6500, updated:"2026-09-24", category:"security", tags:["password","opensource","vault"], url:"https://chrome.google.com/webstore/detail/bitwarden" },
+  { id:112, name:"React Developer Tools", owner:"Meta", desc:"Reactコンポーネントツリーの可視化、props/stateの確認、パフォーマンスプロファイリングが可能。", stars:4200000, weeklyStars:2100, updated:"2026-09-23", category:"devtools", tags:["react","debug","component"], url:"https://chrome.google.com/webstore/detail/react-developer-tools" },
+  { id:113, name:"Vue.js devtools", owner:"Vue Team", desc:"Vueコンポーネントの階層表示、Vuex状態管理のデバッグ、イベントトラッキング機能を提供。", stars:1800000, weeklyStars:1900, updated:"2026-09-22", category:"devtools", tags:["vue","debug","vuex"], url:"https://chrome.google.com/webstore/detail/vuejs-devtools" },
+  { id:114, name:"ColorZilla", owner:"Iosifurie", desc:"アドバンスドカラーピッカー、CSSグラデーションジェネレーター、ページカラーパレット分析が使えます。", stars:3400000, weeklyStars:900, updated:"2026-09-21", category:"design", tags:["color","picker","gradient"], url:"https://chrome.google.com/webstore/detail/colorzilla" },
+  { id:115, name:"Page Ruler Redux", owner:"wogho", desc:"Webページ上に定規を表示して要素の幅・高さ・余白を正確に測定。ピクセル単位で確認できます。", stars:850000, weeklyStars:3300, updated:"2026-09-20", category:"design", tags:["ruler","measure","px"], url:"https://chrome.google.com/webstore/detail/page-ruler-redux" },
+  { id:116, name:"Loom", owner:"Loom Inc.", desc:"画面・カメラ・音声同時録画し、即座に共有リンクを生成。フィードバック共有に最適です。", stars:10500000, weeklyStars:4700, updated:"2026-09-19", category:"productivity", tags:["screen-recorder","share","video"], url:"https://chrome.google.com/webstore/detail/loom" },
+  { id:117, name:"Notion Web Clipper", owner:"Notion", desc:"WebページをNotionにワンクリック保存。記事・ブックマーク・リサーチ資料を簡単に整理できます。", stars:9200000, weeklyStars:3800, updated:"2026-09-18", category:"productivity", tags:["notion","clipper","bookmark"], url:"https://chrome.google.com/webstore/detail/notion-web-clipper" },
+  { id:118, name:"Save to Pocket", owner:"Mozilla", desc:"後で読みたい記事をワンクリック保存。タグ分け・音声読み上げ・オフライン閲覧に対応。", stars:18000000, weeklyStars:500, updated:"2026-09-17", category:"productivity", tags:["read-later","bookmark","offline"], url:"https://chrome.google.com/webstore/detail/save-to-pocket" },
+  { id:119, name:"HTTPS Everywhere", owner:"EFF", desc:"自動的にHTTPS接続に切り替え、安全でないHTTP接続をブロックして通信を暗号化します。", stars:24000000, weeklyStars:300, updated:"2026-09-16", category:"security", tags:["https","encryption","privacy"], url:"https://chrome.google.com/webstore/detail/https-everywhere" },
+  { id:120, name:"Privacy Badger", owner:"EFF", desc:"トラッカーを自動検出してブロック。学習型アルゴリズムで不要な通信を段階的に遮断します。", stars:15000000, weeklyStars:1100, updated:"2026-09-15", category:"security", tags:["tracker","privacy","eff"], url:"https://chrome.google.com/webstore/detail/privacy-badger" },
+  { id:121, name:"Session Buddy", owner:"GavinSharp", desc:"ブラウザセッションを保存・管理・復元。複数のタブ構成を名前付きセッションとして管理できます。", stars:1200000, weeklyStars:2600, updated:"2026-09-14", category:"productivity", tags:["session","tabs","backup"], url:"https://chrome.google.com/webstore/detail/session-buddy" },
+  { id:122, name:"Marinara", owner:"Schmich", desc:"ポモドーロテクニック用タイマー。作業・休憩の自動切り替え、統計・通知機能を搭載。", stars:380000, weeklyStars:5200, updated:"2026-09-13", category:"productivity", tags:["pomodoro","timer","focus"], url:"https://chrome.google.com/webstore/detail/marinara" },
+  { id:123, name:"Wikiwand", owner:"Wikiwand", desc:"WikipediaのUIをモダンに刷新。読みやすいタイポグラフィ、ナビゲーション、ダークモードを提供。", stars:5600000, weeklyStars:1400, updated:"2026-09-12", category:"productivity", tags:["wikipedia","reader","ui"], url:"https://chrome.google.com/webstore/detail/wikiwand" },
+  { id:124, name:"Google Translate", owner:"Google", desc:"任意のWebページを翻訳。選択テキストの即時翻訳と発音再生にも対応しています。", stars:12000000, weeklyStars:700, updated:"2026-09-11", category:"productivity", tags:["translate","language","google"], url:"https://chrome.google.com/webstore/detail/google-translate" },
+  { id:125, name:"SponsorBlock", owner:"Ajay Ramachandran", desc:"YouTube動画のスポンサー・イントロ・アウトロを自動スキップ。コミュニティ駆動のデータベース。", stars:13500000, weeklyStars:8900, updated:"2026-09-24", category:"social", tags:["youtube","skip","sponsor"], url:"https://chrome.google.com/webstore/detail/sponsorblock" },
+  { id:126, name:"Video Speed Controller", owner:"igrigorik", desc:"任意の動画の再生速度を0.07x刻みで調整。ショートカットキーでの高速操作が可能です。", stars:5800000, weeklyStars:3500, updated:"2026-09-23", category:"social", tags:["video","speed","playback"], url:"https://chrome.google.com/webstore/detail/video-speed-controller" },
+  { id:127, name:"FireShot", owner:"Susbox", desc:"Webページ全体のスクリーンショットを取得。フルページ・可視領域・選択領域のキャプチャに対応。", stars:3100000, weeklyStars:1200, updated:"2026-09-22", category:"productivity", tags:["screenshot","capture","fullpage"], url:"https://chrome.google.com/webstore/detail/fireshot" },
+  { id:128, name:"GoFullPage", owner:"Peter Coles", desc:"Webページ全体を1枚の画像としてキャプチャ。長大なページも自動スクロールで完全保存します。", stars:7200000, weeklyStars:2900, updated:"2026-09-21", category:"productivity", tags:["screenshot","fullpage","capture"], url:"https://chrome.google.com/webstore/detail/gofullpage" },
+  { id:129, name:"JSON Viewer Awesome", owner:"Raphael R.", desc:"JSONレスポンスを折りたたみ可能なツリー形式で表示。シンタックスハイライトと検索機能付き。", stars:890000, weeklyStars:4200, updated:"2026-09-20", category:"devtools", tags:["json","viewer","api"], url:"https://chrome.google.com/webstore/detail/json-viewer-awesome" },
+  { id:130, name:"Wappalyzer", owner:"Elbert Alias", desc:"訪問中のWebサイトが使用している技術スタックを自動検出。CMS・フレームワーク・分析ツールを特定。", stars:2100000, weeklyStars:1800, updated:"2026-09-19", category:"devtools", tags:["tech-stack","detector","cms"], url:"https://chrome.google.com/webstore/detail/wappalyzer" },
+];
+
+const dockerImages = [
+  { id:201, name:"nginx", owner:"nginxinc", desc:"高性能なHTTP・リバースプロキシサーバー。静的コンテンツ配信ロードバランシングに最適。", stars:21000, weeklyStars:420, updated:"2026-09-24", category:"selfhosted", tags:["web","proxy","server"], pulls:"1.2B", url:"https://hub.docker.com/_/nginx" },
+  { id:202, name:"Redis", owner:"redis", desc:"インメモリデータストア。キャッシュ・メッセージブローカー・ストリーミングエンジンとして使用。", stars:12000, weeklyStars:310, updated:"2026-09-23", category:"database", tags:["cache","in-memory","nosql"], pulls:"980M", url:"https://hub.docker.com/_/redis" },
+  { id:203, name:"PostgreSQL", owner:"postgres", desc:"高度なオープンソースリレーショナルデータベース。JSON対応と拡張性が特徴。", stars:15000, weeklyStars:380, updated:"2026-09-22", category:"database", tags:["sql","database","json"], pulls:"850M", url:"https://hub.docker.com/_/postgres" },
+  { id:204, name:"Node.js", owner:"nodejs", desc:"JavaScriptランタイム。サーバーサイドアプリケションとマイクロサービス構築に使用。", stars:13000, weeklyStars:290, updated:"2026-09-21", category:"devops", tags:["javascript","runtime","server"], pulls:"720M", url:"https://hub.docker.com/_/node" },
+  { id:205, name:"MongoDB", owner:"mongodb", desc:"ドキュメント指向NoSQLデータベース。スキーマレスで柔軟なデータモデルを提供。", stars:9800, weeklyStars:250, updated:"2026-09-20", category:"database", tags:["nosql","document","json"], pulls:"650M", url:"https://hub.docker.com/_/mongo" },
+  { id:206, name:"MySQL", owner:"oracle", desc:"世界で最も使用されるオープンソースリレーショナルデータベース。高いパフォーマンスと信頼性。", stars:14000, weeklyStars:210, updated:"2026-09-19", category:"database", tags:["sql","database","relational"], pulls:"1.1B", url:"https://hub.docker.com/_/mysql" },
+  { id:207, name:"Elasticsearch", owner:"elastic", desc:"分散型検索・分析エンジン。全文検索・ログ分析・メトリクス可視化に対応。", stars:11000, weeklyStars:180, updated:"2026-09-18", category:"monitoring", tags:["search","analytics","logging"], pulls:"480M", url:"https://hub.docker.com/_/elasticsearch" },
+  { id:208, name:"Prometheus", owner:"prometheus", desc:"監視・アラートツールキット。時系列データの収集とクエリに特化。", stars:9500, weeklyStars:320, updated:"2026-09-17", category:"monitoring", tags:["monitoring","metrics","alerting"], pulls:"390M", url:"https://hub.docker.com/r/prom/prometheus" },
+  { id:209, name:"Grafana", owner:"grafana", desc:"マルチプラットフォームの可視化ツール。ダッシュボード作成とメトリクス監視が強力。", stars:10200, weeklyStars:280, updated:"2026-09-16", category:"monitoring", tags:["dashboard","visualization","metrics"], pulls:"420M", url:"https://hub.docker.com/r/grafana/grafana" },
+  { id:210, name:"Jenkins", owner:"jenkinsci", desc:"オープンソスの自動化サーバー。CI/CDパイプラインの構築と管理に使用。", stars:7800, weeklyStars:150, updated:"2026-09-15", category:"devops", tags:["ci","cd","automation"], pulls:"350M", url:"https://hub.docker.com/r/jenkins/jenkins" },
+  { id:211, name:"Home Assistant", owner:"home-assistant", desc:"オープンソースのホームオートメーションプラットフォーム。スマートデバイスを一元管理。", stars:22000, weeklyStars:850, updated:"2026-09-24", category:"selfhosted", tags:["home-automation","iot","smart-home"], pulls:"180M", url:"https://hub.docker.com/r/homeassistant/home-assistant" },
+  { id:212, name:"Pi-hole", owner:"pi-hole", desc:"ネットワーク全体の広告ブロッカー。DNSシンクホールで全デバイスの広告を遮断。", stars:16500, weeklyStars:620, updated:"2026-09-23", category:"selfhosted", tags:["dns","adblock","privacy"], pulls:"120M", url:"https://hub.docker.com/r/pihole/pihole" },
+  { id:213, name:"Nextcloud", owner:"nextcloud", desc:"セルフホスト型のファイル同期・共有プラットフォーム。Google Driveの代替として人気。", stars:14200, weeklyStars:480, updated:"2026-09-22", category:"selfhosted", tags:["cloud","files","sync"], pulls:"200M", url:"https://hub.docker.com/_/nextcloud" },
+  { id:214, name:"Jellyfin", owner:"jellyfin", desc:"メディアサーバー。映画・TV・音楽をストリーミング配信。Embyのオープンソースフォーク。", stars:12800, weeklyStars:520, updated:"2026-09-21", category:"media", tags:["media","streaming","server"], pulls:"95M", url:"https://hub.docker.com/r/jellyfin/jellyfin" },
+  { id:215, name:"Plex", owner:"plexinc", desc:"メディアサーバー。個人メディアライブラリをどのデバイスからでもストリーミング。", stars:8900, weeklyStars:340, updated:"2026-09-20", category:"media", tags:["media","streaming","server"], pulls:"150M", url:"https://hub.docker.com/r/plexinc/pms-docker" },
+  { id:216, name:"Sonarr", owner:"Sonarr", desc:"TV番号の自動ダウンロード管理。新エピソードを自動的に取得・整理。", stars:6200, weeklyStars:280, updated:"2026-09-19", category:"media", tags:["tv","automation","download"], pulls:"45M", url:"https://hub.docker.com/r/linuxserver/sonarr" },
+  { id:217, name:"Radarr", owner:"Radarr", desc:"映画の自動ダウンロード管理。Sonarrの映画版。新リリースを自動的に取得。", stars:5800, weeklyStars:250, updated:"2026-09-18", category:"media", tags:["movies","automation","download"], pulls:"38M", url:"https://hub.docker.com/r/linuxserver/radarr" },
+  { id:218, name:"Portainer", owner:"portainer", desc:"Docker/Kubernetesの管理UI。コンテナ・ボリューム・ネットワークをGUIで管理。", stars:11200, weeklyStars:410, updated:"2026-09-17", category:"devops", tags:["docker","ui","management"], pulls:"160M", url:"https://hub.docker.com/r/portainer/portainer" },
+  { id:219, name:"Traefik", owner:"traefik", desc:"クラウドネイティブのアプリケーションプロキシ。自動サービスディスカバリとLet's Encrypt対応。", stars:13400, weeklyStars:360, updated:"2026-09-16", category:"devops", tags:["proxy","loadbalancer","ssl"], pulls:"220M", url:"https://hub.docker.com/_/traefik" },
+  { id:220, name:"Vaultwarden", owner:"dani-garcia", desc:"Bitwarden互換の軽量Rust実装。セルフホストでパスワード管理が可能。", stars:9800, weeklyStars:520, updated:"2026-09-15", category:"selfhosted", tags:["password","vault","rust"], pulls:"55M", url:"https://hub.docker.com/r/vaultwarden/server" },
+  { id:221, name:"MariaDB", owner:"mariadb", desc:"MySQL互換のオープンソースリレーショナルデータベース。高性能で完全無償。", stars:5600, weeklyStars:140, updated:"2026-09-14", category:"database", tags:["sql","database","mysql"], pulls:"380M", url:"https://hub.docker.com/_/mariadb" },
+  { id:222, name:"InfluxDB", owner:"influxdata", desc:"時系列データベース。IoT・メトリクス・イベントデータの高速書き込みに最適。", stars:7200, weeklyStars:190, updated:"2026-09-13", category:"database", tags:["timeseries","metrics","iot"], pulls:"180M", url:"https://hub.docker.com/_/influxdb" },
+  { id:223, name:"MinIO", owner:"minio", desc:"高性能なオブジェクトストレージ。Amazon S3互換APIを提供するセルフホストストレージ。", stars:8900, weeklyStars:310, updated:"2026-09-12", category:"selfhosted", tags:["storage","s3","object"], pulls:"140M", url:"https://hub.docker.com/r/minio/minio" },
+  { id:224, name:"GitLab CE", owner:"gitlab", desc:"DevOpsプラットフォーム。Gitリポジトリ管理・CI/CD・Issue追跡を統合。", stars:10500, weeklyStars:220, updated:"2026-09-11", category:"devops", tags:["git","ci","devops"], pulls:"170M", url:"https://hub.docker.com/r/gitlab/gitlab-ce" },
+  { id:225, name:"Nginx Proxy Manager", owner:"NginxProxyManager", desc:"Nginxベースのリバースプロキシ管理UI。Let's Encrypt自動取得とSSL設定を簡素化。", stars:9200, weeklyStars:480, updated:"2026-09-10", category:"selfhosted", tags:["proxy","ssl","nginx"], pulls:"72M", url:"https://hub.docker.com/r/jc21/nginx-proxy-manager" },
+  { id:226, name:"WireGuard", owner:"linuxserver", desc:"最新のVPNプロトコル。シンプルで高速な暗号化通信を提供。", stars:7400, weeklyStars:290, updated:"2026-09-09", category:"selfhosted", tags:["vpn","network","privacy"], pulls:"85M", url:"https://hub.docker.com/r/linuxserver/wireguard" },
+  { id:227, name:"Uptime Kuma", owner:"louislam", desc:"セルフホスト型のモニタリングツール。HTTP/S・TCP・Ping監視と通知機能。", stars:15600, weeklyStars:680, updated:"2026-09-08", category:"monitoring", tags:["monitoring","uptime","alert"], pulls:"48M", url:"https://hub.docker.com/r/louislam/uptime-kuma" },
+  { id:228, name:"AdGuard Home", owner:"AdguardTeam", desc:"ネットワーク全体の広告ブロッカー。DNSレベルでトラッカーと広告を遮断。", stars:10800, weeklyStars:420, updated:"2026-09-07", category:"selfhosted", tags:["dns","adblock","privacy"], pulls:"62M", url:"https://hub.docker.com/r/adguard/adguardhome" },
+  { id:229, name:"Paperless-ngx", owner:"paperless-ngx", desc:"ドキュメント管理システム。スキャン文書をOCRで検索可能に変換・保存。", stars:8200, weeklyStars:380, updated:"2026-09-06", category:"selfhosted", tags:["documents","ocr","archive"], pulls:"35M", url:"https://hub.docker.com/r/paperlessngx/paperless-ngx" },
+  { id:230, name:"Mealie", owner:"hay-kot", desc:"セルフホスト型のレシピ管理アプリ。Webスクレイピングでレシピを自動インポート。", stars:4200, weeklyStars:210, updated:"2026-09-05", category:"selfhosted", tags:["recipes","food","manager"], pulls:"18M", url:"https://hub.docker.com/r/hkotel/mealie" },
+];
+
+// ===================== STATE =====================
 let state = {
-  period: 'today',
-  pool: [],       // raw fetched pool (up to 100 repos)
-  favorites: [],
-  favOnly: false,
-  langFilter: null,
-  showTranslated: true,
-  translations: {},   // { repoId: '日本語訳テキスト' | 'ERROR' }
-  meta: {}
+  view: 'android',
+  period: 'week',
+  category: 'all',
+  sort: 'score',
 };
 
-const listEl = document.getElementById('list');
-const statusEl = document.getElementById('status');
-const metaEl = document.getElementById('meta');
-const fetchedAtEl = document.getElementById('fetchedAt');
-const langFiltersEl = document.getElementById('langFilters');
+// ===================== UTILS =====================
+function formatNum(n) {
+  if (typeof n === 'string') return n;
+  if (n >= 1000000000) return (n / 1000000000).toFixed(1) + 'B';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+  return n.toString();
+}
 
-function timeAgo(dateStr){
+function parsePulls(pulls) {
+  if (!pulls) return 0;
+  const n = parseFloat(pulls.replace(/[^0-9.]/g, ''));
+  if (pulls.includes('B')) return n * 1000000000;
+  if (pulls.includes('M')) return n * 1000000;
+  if (pulls.includes('k')) return n * 1000;
+  return n;
+}
+
+function timeAgo(dateStr) {
   const d = new Date(dateStr);
   const diffMs = Date.now() - d.getTime();
   const days = Math.floor(diffMs / 86400000);
   if (days <= 0) return '今日';
   if (days === 1) return '1日前';
   if (days < 7) return days + '日前';
-  if (days < 30) return Math.floor(days/7) + '週間前';
-  if (days < 365) return Math.floor(days/30) + 'か月前';
-  return Math.floor(days/365) + '年前';
+  if (days < 30) return Math.floor(days / 7) + '週間前';
+  if (days < 365) return Math.floor(days / 30) + 'か月前';
+  return Math.floor(days / 365) + '年前';
 }
 
-async function loadTranslations(){
-  try {
-    const r = await window.storage.get('translations', true);
-    state.translations = r ? JSON.parse(r.value) : {};
-  } catch(e){ state.translations = {}; }
-}
-
-let saveTranslationsTimer = null;
-function saveTranslationsDebounced(){
-  clearTimeout(saveTranslationsTimer);
-  saveTranslationsTimer = setTimeout(async () => {
-    try { await window.storage.set('translations', JSON.stringify(state.translations), true); }
-    catch(e){ console.error('translation cache save failed', e); }
-  }, 800);
-}
-
-async function translateText(text){
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('translate failed');
-  const json = await res.json();
-  const translated = json?.responseData?.translatedText;
-  if (!translated) throw new Error('empty translation');
-  return translated;
-}
-
-// 表示中のリポジトリの説明文を順番に翻訳し、キャッシュ後にDOMを直接更新する
-async function ensureTranslations(display){
-  const targets = display.filter(r => r.description && !state.translations[r.id]);
-  for (const repo of targets){
-    try {
-      const translated = await translateText(repo.description);
-      state.translations[repo.id] = translated;
-    } catch(e){
-      state.translations[repo.id] = 'ERROR';
-    }
-    if (state.showTranslated){
-      const el = document.querySelector(`[data-desc-id="${repo.id}"]`);
-      if (el) el.textContent = descTextFor(repo);
-    }
-    saveTranslationsDebounced();
-    await new Promise(r => setTimeout(r, 250)); // 無料APIへの配慮で少し間隔を空ける
+function calcScore(item) {
+  if (state.view === 'docker') {
+    const pullVal = parsePulls(item.pulls);
+    return pullVal + item.weeklyStars * 100000;
   }
+  return item.stars + item.weeklyStars * 50;
 }
 
-function descTextFor(repo){
-  if (!repo.description) return '(説明なし)';
-  if (!state.showTranslated) return repo.description;
-  const t = state.translations[repo.id];
-  if (t === 'ERROR') return repo.description + ' (翻訳失敗・原文表示)';
-  if (t) return t;
-  return '翻訳中... / ' + repo.description;
+function getTrendBars() {
+  return Array.from({ length: 7 }, () => 20 + Math.floor(Math.random() * 70));
 }
 
-async function loadFavorites(){
-  try {
-    const r = await window.storage.get('favorites', false);
-    state.favorites = r ? JSON.parse(r.value) : [];
-  } catch(e){ state.favorites = []; }
-}
+// ===================== FILTER & SORT =====================
+function getFilteredData() {
+  let data;
+  if (state.view === 'android') data = [...androidRepos];
+  else if (state.view === 'chrome') data = [...chromeExts];
+  else data = [...dockerImages];
 
-async function saveFavorites(){
-  try { await window.storage.set('favorites', JSON.stringify(state.favorites), false); }
-  catch(e){ console.error('favorite save failed', e); }
-}
-
-async function toggleFavorite(fullName){
-  const idx = state.favorites.indexOf(fullName);
-  if (idx >= 0) state.favorites.splice(idx,1);
-  else state.favorites.push(fullName);
-  await saveFavorites();
-  render();
-}
-
-async function getCached(period){
-  const today = new Date().toISOString().slice(0,10);
-  try {
-    const r = await window.storage.get('cache:' + period + ':' + today, true);
-    if (!r) return null;
-    const data = JSON.parse(r.value);
-    if (Date.now() - data.ts < 1000*60*60) return data; // 1時間以内のキャッシュを利用
-    return null;
-  } catch(e){ return null; }
-}
-
-async function setCached(period, data){
-  const today = new Date().toISOString().slice(0,10);
-  try { await window.storage.set('cache:' + period + ':' + today, JSON.stringify(data), true); }
-  catch(e){ console.error('cache save failed', e); }
-}
-
-async function fetchPool(period, force){
-  if (!force){
-    const cached = await getCached(period);
-    if (cached) return cached;
+  // Category filter (Chrome and Docker)
+  if (state.view !== 'android' && state.category !== 'all') {
+    data = data.filter(x => x.category === state.category);
   }
-  const q = encodeURIComponent('topic:android -topic:game -topic:games archived:false');
-  const url = `https://api.github.com/search/repositories?q=${q}&sort=stars&order=desc&per_page=100`;
-  const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } });
-  if (!res.ok){
-    if (res.status === 403) throw new Error('RATE_LIMIT');
-    throw new Error('HTTP_' + res.status);
-  }
-  const json = await res.json();
-  const items = (json.items || []).filter(it => {
-    const topics = (it.topics || []).map(t => t.toLowerCase());
-    return !topics.includes('game') && !topics.includes('games') && !topics.includes('gaming');
+
+  data.forEach(x => {
+    x._score = calcScore(x);
+    x._trend = getTrendBars();
   });
-  const data = { ts: Date.now(), items };
-  await setCached(period, data);
+
+  data.sort((a, b) => {
+    if (state.sort === 'stars') return b.stars - a.stars;
+    if (state.sort === 'weekly') return b.weeklyStars - a.weeklyStars;
+    if (state.sort === 'updated') return new Date(b.updated) - new Date(a.updated);
+    if (state.sort === 'pulls') return parsePulls(b.pulls) - parsePulls(a.pulls);
+    return b._score - a._score;
+  });
+
   return data;
 }
 
-function computeRanking(pool, period){
-  const days = PERIODS[period].days;
-  const cutoff = Date.now() - days*86400000;
-  let filtered = pool.filter(it => new Date(it.pushed_at).getTime() >= cutoff);
-  let extended = false;
-  if (filtered.length < 30){
-    // 十分な件数が無い場合はプールの中でpushed_atが新しい順に補完
-    extended = true;
-    filtered = [...pool].sort((a,b)=> new Date(b.pushed_at) - new Date(a.pushed_at));
+// ===================== RENDER =====================
+function render() {
+  const data = getFilteredData();
+  const listEl = document.getElementById('list');
+  const metaEl = document.getElementById('meta');
+  const isAndroid = state.view === 'android';
+  const isDocker = state.view === 'docker';
+
+  metaEl.innerHTML = `<span>表示中: ${data.length} 件</span><span>並び順: ${sortLabel(state.sort)}</span><span>カテゴリ: ${categoryLabel(state.category)}</span>`;
+
+  const maxScore = data.length > 0 ? data[0]._score : 1;
+  listEl.innerHTML = data.map((item, idx) => {
+    const rank = idx + 1;
+    const isTop = rank <= 3;
+    const isHot = item.weeklyStars > 100;
+    const iconLetter = item.name.charAt(0).toUpperCase();
+    const scorePct = Math.max(4, (item._score / maxScore) * 100);
+
+    if (isAndroid) {
+      return renderAndroidRow(item, rank, isTop, isHot, iconLetter, scorePct);
+    } else if (isDocker) {
+      return renderDockerRow(item, rank, isTop, isHot, iconLetter, scorePct);
+    } else {
+      return renderChromeRow(item, rank, isTop, isHot, iconLetter, scorePct);
+    }
+  }).join('');
+
+  // Newcomers section (Chrome and Docker)
+  const newcomerTitle = document.getElementById('newcomerTitle');
+  const newcomerList = document.getElementById('newcomerList');
+  if (!isAndroid) {
+    newcomerTitle.style.display = '';
+    newcomerList.style.display = '';
+    const newcomers = data.filter(x => x.weeklyStars > (isDocker ? 300 : 3000)).slice(0, 5);
+    newcomerList.innerHTML = newcomers.map((item, idx) => renderNewcomerRow(item, idx + 1, isDocker)).join('');
+  } else {
+    newcomerTitle.style.display = 'none';
+    newcomerList.style.display = 'none';
   }
-  const ranked = filtered
-    .map(it => {
-      const createdRecently = new Date(it.created_at).getTime() >= cutoff;
-      return { ...it, _isNew: createdRecently, _score: it.stargazers_count };
-    })
-    .sort((a,b) => b._score - a._score)
-    .slice(0, 30);
-  const maxScore = ranked.length ? ranked[0]._score : 1;
-  return { ranked, maxScore, extended };
 }
 
-function renderLangFilters(items){
-  const langs = Array.from(new Set(items.map(i => i.language).filter(Boolean)));
-  langFiltersEl.innerHTML = '';
-  langs.slice(0,6).forEach(lang => {
-    const b = document.createElement('button');
-    b.className = 'chip' + (state.langFilter === lang ? ' active' : '');
-    b.textContent = lang;
-    b.onclick = () => { state.langFilter = state.langFilter === lang ? null : lang; render(); };
-    langFiltersEl.appendChild(b);
-  });
-}
-
-function render(){
-  const { ranked, maxScore, extended } = computeRanking(state.pool, state.period);
-  renderLangFilters(ranked);
-
-  let display = ranked;
-  if (state.langFilter) display = display.filter(r => r.language === state.langFilter);
-  if (state.favOnly) display = display.filter(r => state.favorites.includes(r.full_name));
-
-  metaEl.textContent = extended
-    ? `${PERIODS[state.period].label}以内の更新のみでは30件に満たなかったため、直近の更新順で補完しています(全${state.pool.length}件のプールから抽出)`
-    : `${PERIODS[state.period].label}以内に更新があったリポジトリ ${ranked.length}件 中の上位表示`;
-
-  listEl.innerHTML = '';
-  if (display.length === 0){
-    statusEl.textContent = '条件に一致するリポジトリが見つかりませんでした。';
-    statusEl.style.display = 'block';
-    return;
-  }
-  statusEl.style.display = 'none';
-
-  display.forEach((repo, i) => {
-    const rank = i+1;
-    const li = document.createElement('li');
-    li.className = 'row';
-    const pct = Math.max(6, Math.round((repo._score / maxScore) * 100));
-    const isFav = state.favorites.includes(repo.full_name);
-    li.innerHTML = `
-      <div class="rank-col ${rank<=3 ? 'top':''}">
-        <span class="dot"></span><span class="rank">#${String(rank).padStart(2,'0')}</span>
+function renderAndroidRow(item, rank, isTop, isHot, iconLetter, scorePct) {
+  return `<li class="row" onclick="openModal(${item.id})" data-id="${item.id}">
+      <div class="rank-col ${isTop ? 'top' : ''}">
+        <span class="dot"></span>
+        <span class="rank">${rank}</span>
       </div>
-      <img class="avatar" src="${repo.owner.avatar_url}" alt="" loading="lazy">
+      <div class="avatar">${iconLetter}</div>
       <div class="info">
         <div class="name-line">
-          <a class="name" href="${repo.html_url}" target="_blank" rel="noopener">${repo.name}</a>
-          <span class="owner">/ ${repo.owner.login}</span>
-          ${repo._isNew ? '<span class="badge-new">NEW</span>' : ''}
+          <a class="name" href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.name}</a>
+          <span class="owner">${item.owner}</span>
+          ${isHot ? '<span class="badge-hot">HOT</span>' : ''}
         </div>
-        <p class="row-desc" data-desc-id="${repo.id}">${escapeHtml(descTextFor(repo))}</p>
-        <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+        <div class="row-desc">${item.desc}</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%"></div></div>
         <div class="tags">
-          ${repo.language ? `<span class="tag">${repo.language}</span>` : ''}
-          ${(repo.topics||[]).slice(0,4).map(t=>`<span class="tag">${t}</span>`).join('')}
+          <span class="tag">${item.lang}</span>
+          ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
         </div>
       </div>
       <div class="stats">
-        <button class="fav-btn ${isFav?'active':''}" data-fav="${repo.full_name}">${isFav ? '★' : '☆'}</button>
-        <span class="stars">★ ${repo.stargazers_count.toLocaleString()}</span>
-        <span class="sub-stat">Fork ${repo.forks_count.toLocaleString()}</span>
-        <span class="sub-stat">${timeAgo(repo.pushed_at)}更新</span>
+        <span class="stars">★ ${formatNum(item.stars)}</span>
+        <span class="sub-stat up">+${formatNum(item.weeklyStars)} / 週</span>
+        <span class="sub-stat">${timeAgo(item.updated)}</span>
       </div>
-    `;
-    listEl.appendChild(li);
-  });
-
-  listEl.querySelectorAll('[data-fav]').forEach(btn => {
-    btn.onclick = () => toggleFavorite(btn.getAttribute('data-fav'));
-  });
-
-  if (state.showTranslated) ensureTranslations(display);
+    </li>`;
 }
 
-function escapeHtml(s){
-  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function renderChromeRow(item, rank, isTop, isHot, iconLetter, scorePct) {
+  const catLabel = { productivity:'生産性', devtools:'開発者ツール', design:'デザイン', security:'セキュリティ', social:'SNS・動画' }[item.category] || item.category;
+  return `<li class="row" onclick="openModal(${item.id})" data-id="${item.id}">
+      <div class="rank-col ${isTop ? 'top' : ''}">
+        <span class="dot"></span>
+        <span class="rank">${rank}</span>
+      </div>
+      <div class="avatar" style="background:linear-gradient(135deg,var(--chrome-blue),var(--chrome-green));color:#fff;">${iconLetter}</div>
+      <div class="info">
+        <div class="name-line">
+          <a class="name" href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.name}</a>
+          <span class="owner">${item.owner}</span>
+          ${isHot ? '<span class="badge-hot">HOT</span>' : ''}
+        </div>
+        <div class="row-desc">${item.desc}</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%;background:${isTop ? 'var(--gold)' : 'var(--green)'}"></div></div>
+        <div class="tags">
+          <span class="tag" style="color:var(--blue);border-color:var(--blue)">${catLabel}</span>
+          ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="stats">
+        <span class="stars">👤 ${formatNum(item.stars)}</span>
+        <span class="sub-stat up">+${formatNum(item.weeklyStars)} / 週</span>
+        <span class="sub-stat">${timeAgo(item.updated)}</span>
+      </div>
+    </li>`;
 }
 
-async function loadPeriod(period, force){
-  statusEl.style.display = 'block';
-  statusEl.className = 'status';
-  statusEl.textContent = '読み込み中...';
-  listEl.innerHTML = '';
-  try {
-    const data = await fetchPool(period, force);
-    state.pool = data.items;
-    fetchedAtEl.textContent = new Date(data.ts).toLocaleString('ja-JP');
-    render();
-  } catch(e){
-    statusEl.className = 'status error';
-    if (e.message === 'RATE_LIMIT'){
-      statusEl.innerHTML = 'GitHub APIのレート制限に達しました。しばらく待ってから <a id="retryLink">再試行</a> してください。';
-    } else {
-      statusEl.innerHTML = 'データの取得に失敗しました。<a id="retryLink">再試行</a>';
-    }
-    const retry = document.getElementById('retryLink');
-    if (retry) retry.onclick = () => loadPeriod(period, true);
-  }
+function renderDockerRow(item, rank, isTop, isHot, iconLetter, scorePct) {
+  const catLabel = { selfhosted:'セルフホスト', media:'メディア', database:'データベース', devops:'DevOps', monitoring:'監視・ログ' }[item.category] || item.category;
+  const pullVal = parsePulls(item.pulls);
+  const isOfficial = ['nginx','Redis','PostgreSQL','Node.js','MongoDB','MySQL'].includes(item.name);
+  return `<li class="row" onclick="openModal(${item.id})" data-id="${item.id}">
+      <div class="rank-col ${isTop ? 'top' : ''}">
+        <span class="dot" style="background:var(--docker-blue)"></span>
+        <span class="rank">${rank}</span>
+      </div>
+      <div class="avatar" style="background:var(--docker-blue);color:#fff;">${iconLetter}</div>
+      <div class="info">
+        <div class="name-line">
+          <a class="name" href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.name}</a>
+          <span class="owner">${item.owner}</span>
+          ${isOfficial ? '<span class="badge-official">OFFICIAL</span>' : ''}
+          ${isHot ? '<span class="badge-hot">HOT</span>' : ''}
+        </div>
+        <div class="row-desc">${item.desc}</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${scorePct}%;background:${isTop ? 'var(--gold)' : 'var(--docker-blue)'}"></div></div>
+        <div class="tags">
+          <span class="tag" style="color:var(--docker-blue);border-color:var(--docker-blue)">${catLabel}</span>
+          ${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="stats">
+        <span class="stars">⬇ ${item.pulls}</span>
+        <span class="sub-stat up">+${formatNum(item.weeklyStars)} / 週</span>
+        <span class="sub-stat">${timeAgo(item.updated)}</span>
+      </div>
+    </li>`;
 }
 
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-    state.period = tab.dataset.period;
-    state.langFilter = null;
-    loadPeriod(state.period, false);
+function renderNewcomerRow(item, rank, isDocker) {
+  const grad = isDocker ? 'var(--docker-blue),var(--blue)' : 'var(--chrome-red),var(--chrome-yellow)';
+  return `<li class="row" onclick="openModal(${item.id})" data-id="${item.id}">
+      <div class="rank-col"><span class="dot" style="background:var(--red)"></span><span class="rank">${rank}</span></div>
+      <div class="avatar" style="background:linear-gradient(135deg,${grad});color:#fff;">${item.name.charAt(0)}</div>
+      <div class="info">
+        <div class="name-line">
+          <a class="name" href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${item.name}</a>
+          <span class="badge-new">NEW</span>
+        </div>
+        <div class="row-desc">${item.desc}</div>
+      </div>
+      <div class="stats">
+        <span class="sub-stat up">+${formatNum(item.weeklyStars)} / 週</span>
+      </div>
+    </li>`;
+}
+
+function sortLabel(s) {
+  const labels = {
+    score: 'トレンドスコア順',
+    stars: '総スター数順',
+    weekly: '間スター増加数順',
+    updated: '更新日順',
+    pulls: 'Pull数順'
   };
+  return labels[s] || s;
+}
+
+function categoryLabel(c) {
+  const labels = {
+    all: 'すべて',
+    productivity: '生産性',
+    devtools: '開発者ツール',
+    design: 'デザイン',
+    security: 'セキュリティ',
+    social: 'SNS・動画',
+    selfhosted: 'セルフホスト',
+    media: 'メディア',
+    database: 'データベース',
+    devops: 'DevOps',
+    monitoring: '監視・ログ'
+  };
+  return labels[c] || c;
+}
+
+// ===================== VIEW SWITCHING =====================
+function switchView(view) {
+  state.view = view;
+  state.category = 'all';
+
+  document.querySelectorAll('.app-switcher button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === view);
+  });
+
+  const titleEl = document.getElementById('pageTitle');
+  const descEl = document.getElementById('pageDesc');
+  const sortSelect = document.getElementById('sortSelect');
+
+  if (view === 'android') {
+    titleEl.textContent = 'Android トレンドボード';
+    descEl.textContent = 'GitHub上に公開されているAndroidアプリ関連リポジトリ(ゲームを除く)を、期間別・スター数ベースの近似トレンドスコアでランキング表示します。';
+    document.getElementById('categoryChips').style.display = 'none';
+    document.getElementById('dockerChips').style.display = 'none';
+    sortSelect.innerHTML = `
+      <option value="score">トレンドスコア順</option>
+      <option value="stars">総スター数順</option>
+      <option value="weekly">週間スター増加数順</option>
+      <option value="updated">更新日順</option>
+    `;
+  } else if (view === 'chrome') {
+    titleEl.textContent = 'Chrome Extension トレンドボード';
+    descEl.textContent = 'Chrome Web Storeに掲載されている拡張機能を独自に集計。評価数・ユーザー数・週間増加をもとにしたトレンドスコアでランキング表示します。';
+    document.getElementById('categoryChips').style.display = 'flex';
+    document.getElementById('dockerChips').style.display = 'none';
+    sortSelect.innerHTML = `
+      <option value="score">トレンドスコア順</option>
+      <option value="stars">総スター順</option>
+      <option value="weekly">週間スター増加数順</option>
+      <option value="updated">更新日順</option>
+    `;
+  } else {
+    titleEl.textContent = 'Docker Image トレンドボード';
+    descEl.textContent = 'Docker Hubに掲載されている人気イメージを集計。Pull数・週間増加・カテゴリ別にトレンドスコアでランキング表示します。';
+    document.getElementById('categoryChips').style.display = 'none';
+    document.getElementById('dockerChips').style.display = 'flex';
+    sortSelect.innerHTML = `
+      <option value="score">トレンドスコア順</option>
+      <option value="pulls">Pull数順</option>
+      <option value="weekly">週間増加数順</option>
+      <option value="updated">更新日順</option>
+    `;
+  }
+
+  render();
+}
+
+function setPeriod(p) {
+  state.period = p;
+  document.querySelectorAll('#periodTabs .tab').forEach(t => t.classList.toggle('active', t.dataset.period === p));
+  render();
+}
+
+function setCategory(c) {
+  state.category = c;
+  document.querySelectorAll('#categoryChips .chip, #dockerChips .chip').forEach(ch => {
+    ch.classList.toggle('active', ch.dataset.cat === c);
+  });
+  render();
+}
+
+function setSort(s) {
+  state.sort = s;
+  render();
+}
+
+// ===================== MODAL =====================
+function openModal(id) {
+  let data;
+  if (state.view === 'android') data = androidRepos;
+  else if (state.view === 'chrome') data = chromeExts;
+  else data = dockerImages;
+
+  const item = data.find(x => x.id === id);
+  if (!item) return;
+
+  const isAndroid = state.view === 'android';
+  const isDocker = state.view === 'docker';
+  const iconLetter = item.name.charAt(0).toUpperCase();
+
+  const iconEl = document.getElementById('modalIcon');
+  iconEl.textContent = iconLetter;
+  if (isAndroid) {
+    iconEl.style.background = 'var(--panel-2)';
+    iconEl.style.color = 'var(--text)';
+  } else if (isDocker) {
+    iconEl.style.background = 'var(--docker-blue)';
+    iconEl.style.color = '#fff';
+  } else {
+    iconEl.style.background = 'linear-gradient(135deg,var(--chrome-blue),var(--chrome-green))';
+    iconEl.style.color = '#fff';
+  }
+
+  document.getElementById('modalTitle').textContent = item.name;
+
+  let catLabel;
+  if (isAndroid) catLabel = item.lang;
+  else if (isDocker) catLabel = { selfhosted:'セルフホスト', media:'メディア', database:'データベース', devops:'DevOps', monitoring:'監視・ログ' }[item.category] || item.category;
+  else catLabel = { productivity:'生産性', devtools:'開発者ツール', design:'デザイン', security:'セキュリティ', social:'SNS・動画' }[item.category] || item.category;
+
+  document.getElementById('modalSub').textContent = `${item.owner} / ${catLabel}`;
+  document.getElementById('modalDesc').textContent = item.desc;
+  document.getElementById('modalLink').href = item.url;
+
+  const statsEl = document.getElementById('modalStats');
+  if (isDocker) {
+    statsEl.innerHTML = `
+      <div class="stat-box"><div class="val">${item.pulls}</div><div class="lab">総Pull数</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--green)">+${formatNum(item.weeklyStars)}</div><div class="lab">週間増加</div></div>
+      <div class="stat-box"><div class="val">${timeAgo(item.updated)}</div><div class="lab">最終更新</div></div>
+    `;
+  } else {
+    statsEl.innerHTML = `
+      <div class="stat-box"><div class="val">${formatNum(item.stars)}</div><div class="lab">総スター数</div></div>
+      <div class="stat-box"><div class="val" style="color:var(--green)">+${formatNum(item.weeklyStars)}</div><div class="lab">週間増加</div></div>
+      <div class="stat-box"><div class="val">${timeAgo(item.updated)}</div><div class="lab">最終更新</div></div>
+    `;
+  }
+
+  const tagsEl = document.getElementById('modalTags');
+  tagsEl.innerHTML = item.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+
+  const trendEl = document.getElementById('modalTrend');
+  const bars = item._trend || getTrendBars();
+  const maxBar = Math.max(...bars);
+  trendEl.innerHTML = bars.map(h => `<div class="trend-mini-bar" style="height:${(h / maxBar * 100).toFixed(0)}%"></div>`).join('');
+
+  const overlay = document.getElementById('modalOverlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('open');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 200);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
 });
 
-document.getElementById('favOnly').onchange = (e) => {
-  state.favOnly = e.target.checked;
-  render();
-};
-
-document.getElementById('refreshBtn').onclick = () => loadPeriod(state.period, true);
-
-const translateToggleBtn = document.getElementById('translateToggle');
-translateToggleBtn.classList.add('chip', 'active');
-translateToggleBtn.onclick = () => {
-  state.showTranslated = !state.showTranslated;
-  translateToggleBtn.classList.toggle('active', state.showTranslated);
-  translateToggleBtn.textContent = state.showTranslated ? '🌐 日本語訳' : '🌐 原文(英語)';
-  render();
-};
-
-(async function init(){
-  await loadFavorites();
-  await loadTranslations();
-  await loadPeriod(state.period, false);
-})();
+// ===================== INIT =====================
+render();
 </script>
 </body>
 </html>
