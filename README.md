@@ -4,7 +4,7 @@ Androidアプリ・Chrome拡張機能・Dockerイメージのトレンドを一�
 
 ## デモ
 
-GitHub Pagesで公開中: `https://<your-username>.github.io/dev/github-Trend-Claude/`
+GitHub Pagesで公開中: `https://<your-username>.github.io/github-Trend-Claude/`
 
 ## 概要
 
