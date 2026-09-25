@@ -4,7 +4,7 @@ Androidアプリ・Chrome拡張機能・Dockerイメージのトレンドを一�
 
 ## デモ
 
-GitHub Pagesで公開中: `https://<your-username>.github.io/devtrend-board/`
+GitHub Pagesで公開中: `https://<your-username>.github.io/dev/github-Trend-Claude/`
 
 ## 概要
 
@@ -88,8 +88,7 @@ open devtrend-board.html
 
 ## 関連プロジェクト
 
-- [github-Trend-Claude](https://github.com/chinta44/github-Trend-Claude) - Androidトレンドボード（前身プロジェクト）
-
+- 
 ## ライセンス
 
 MIT License
